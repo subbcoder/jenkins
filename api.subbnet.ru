@@ -53,48 +53,41 @@ pipeline {
             steps {
                 // Вы можете сделать после добавленияв NOPASSWD этого пользователя в /etc/sudoers
                 // jenkins ALL=(ALL) NOPASSWD: ALL
-                
+
                 writeFile(file: "${SITE_NAME}.conf", text: 
 """server {
     listen 80;
-    server_name jenkins.subbnet.ru;
-
+    server_name ${SITE_NAME};
     location / {
         #proxy_http_version 1.1;
-        #proxy_set_header Upgrade $http_upgrade;
+        #proxy_set_header Upgrade \$http_upgrade;
         #proxy_set_header Connection keep-alive;
-        #proxy_set_header Host $host;
-        #proxy_cache_bypass $http_upgrade;
+        #proxy_set_header Host \$host;
+        #proxy_cache_bypass \$http_upgrade;
         proxy_pass ${URLS_NAME};
     }
 }
-
 server {
     listen 443 ssl http2;
-    server_name jenkins.subbnet.ru;
-
+    server_name ${SITE_NAME};
     location / {
         proxy_pass ${URLS_NAME};
         proxy_redirect off;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host \$server_name;
     }
-
     proxy_connect_timeout 900;
     proxy_send_timeout 900;
     proxy_read_timeout 900;
     send_timeout 900;
-
     access_log /var/log/nginx/localhost-access.log;
     error_log /var/log/nginx/localhost-error.log;
-
     ssl on;
     ssl_certificate /etc/nginx/sert/fullchain.pem;
     ssl_certificate_key /etc/nginx/sert/privkey.pem;
     # ssl_trusted_certificate /etc/letsencrypt/live/msg-spb.ru/chain.pem;
-
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_prefer_server_ciphers on;
     #ssl_dhparam /etc/ssl/certs/dhparam.pem;
@@ -109,17 +102,14 @@ server {
                 
                 sh "sudo -S chown -R root:root ${SITE_NAME}.conf"
                 sh "sudo -S cp ${SITE_NAME}.conf /etc/nginx/conf.d/${SITE_NAME}.conf"   
-
+                
+                
                 sh "sudo -S systemctl stop nginx"
 
                 sh "sudo -S systemctl stop ${SITE_NAME}"
 
                 sh "sudo -S systemctl disable ${SITE_NAME}"
                 
-                // Создать файл сервиса с именем ххх.service
-                // в папку
-                // /etc/systemd/system
-                //                
                 writeFile(file: "${SITE_NAME}.service", text: 
 """[Unit]
 Description=app.subbnet.ru
@@ -153,6 +143,11 @@ WantedBy=multi-user.target"""
                 //$directory = filename.txt
                 //sh(""" rm -rf $directory """)
                 
+                // Создать файл сервиса с именем ххх.service
+                // в папку
+                // /etc/systemd/system
+                //
+
             }
         }
 
