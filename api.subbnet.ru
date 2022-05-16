@@ -116,6 +116,10 @@ server {
 
                 sh "sudo -S systemctl disable ${SITE_NAME}"
                 
+                // Создать файл сервиса с именем ххх.service
+                // в папку
+                // /etc/systemd/system
+                //                
                 writeFile(file: "${SITE_NAME}.service", text: 
 """[Unit]
 Description=app.subbnet.ru
@@ -149,11 +153,6 @@ WantedBy=multi-user.target"""
                 //$directory = filename.txt
                 //sh(""" rm -rf $directory """)
                 
-                // Создать файл сервиса с именем ххх.service
-                // в папку
-                // /etc/systemd/system
-                //
-
             }
         }
 
